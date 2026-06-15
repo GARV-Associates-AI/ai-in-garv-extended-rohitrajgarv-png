@@ -1,0 +1,1864 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>GARV & Associates Chartered Accountants – Audit Management System</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+:root {
+  --navy: #1e3a8a;
+  --navy-light: #2d4fa3;
+  --gold: #b8860b;
+  --gold-light: #d4a017;
+  --bg: #f0f4f9;
+  --card: #ffffff;
+  --border: #d1d5db;
+  --text: #1f2937;
+  --muted: #6b7280;
+  --high: #dc2626;
+  --medium: #d97706;
+  --low: #16a34a;
+  --tag-open: #fef2f2;
+  --tag-closed: #f0fdf4;
+  --tag-pending: #fffbeb;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Segoe UI', Arial, sans-serif; background: var(--bg); color: var(--text); font-size: 14px; }
+
+/* HEADER */
+header {
+  background: linear-gradient(135deg, #0f2060 0%, #1e3a8a 60%, #162d73 100%);
+  color: #fff;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 4px 18px rgba(15,32,96,.35);
+}
+.header-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 28px;
+  border-bottom: 3px solid var(--gold);
+  position: relative;
+}
+.header-top::after {
+  content: '';
+  position: absolute;
+  bottom: -6px;
+  left: 0; right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, transparent, rgba(212,160,23,.35), transparent);
+}
+.header-left { display: flex; align-items: center; gap: 14px; }
+.header-logo {
+  width: 46px; height: 46px;
+  background: linear-gradient(135deg, var(--gold) 0%, #f0c040 100%);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22px;
+  box-shadow: 0 2px 8px rgba(0,0,0,.25);
+  flex-shrink: 0;
+}
+.header-firm {
+  font-size: 24px;
+  font-weight: 800;
+  letter-spacing: 1.5px;
+  color: #fff;
+  line-height: 1.1;
+  font-family: 'Segoe UI', Arial, sans-serif;
+}
+.header-firm span { color: var(--gold-light); }
+.header-sub {
+  font-size: 11.5px;
+  color: #cbd5e1;
+  letter-spacing: 1.5px;
+  font-weight: 500;
+  margin-top: 5px;
+  font-style: normal;
+  text-transform: none;
+  opacity: 1;
+}
+.header-right { text-align: right; }
+.header-title {
+  font-size: 12px;
+  color: #94a3b8;
+  font-weight: 500;
+  letter-spacing: .4px;
+}
+.header-version {
+  font-size: 10px;
+  color: var(--gold-light);
+  letter-spacing: .8px;
+  margin-top: 3px;
+  text-transform: uppercase;
+  opacity: .8;
+}
+
+/* NAV */
+nav {
+  background: #0f2060;
+  padding: 0 28px;
+  display: flex;
+  gap: 0px;
+  flex-wrap: wrap;
+  border-bottom: 2px solid rgba(212,160,23,.3);
+}
+nav button {
+  background: transparent;
+  color: #93c5fd;
+  border: none;
+  padding: 12px 18px;
+  cursor: pointer;
+  font-size: 12.5px;
+  font-weight: 600;
+  border-bottom: 3px solid transparent;
+  transition: all .18s;
+  white-space: nowrap;
+  letter-spacing: .3px;
+}
+nav button:hover { color: #fff; background: rgba(255,255,255,.06); border-bottom-color: rgba(212,160,23,.4); }
+nav button.active-nav { color: #fff; border-bottom-color: var(--gold-light); background: rgba(255,255,255,.05); }
+.nav-actions {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 0;
+}
+.nav-actions button {
+  background: rgba(184,134,11,.15);
+  color: var(--gold-light);
+  border: 1px solid rgba(184,134,11,.5);
+  border-radius: 5px;
+  padding: 7px 14px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all .15s;
+  letter-spacing: .3px;
+}
+.nav-actions button:hover { background: var(--gold); color: #fff; border-color: var(--gold); box-shadow: 0 2px 8px rgba(184,134,11,.4); }
+
+/* PAGES */
+.page { display: none; padding: 24px; max-width: 1200px; margin: 0 auto; }
+.page.active { display: block; }
+
+/* CARD */
+.card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 20px;
+  box-shadow: 0 1px 3px rgba(0,0,0,.06);
+}
+.card h3 {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--navy);
+  margin-bottom: 14px;
+  padding-bottom: 8px;
+  border-bottom: 2px solid var(--bg);
+}
+
+/* FORM ELEMENTS */
+label { font-size: 12px; font-weight: 600; color: var(--muted); display: block; margin-bottom: 3px; margin-top: 10px; }
+label:first-child { margin-top: 0; }
+input, textarea, select {
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  font-size: 13px;
+  font-family: inherit;
+  background: #f9fafb;
+  transition: border-color .2s;
+}
+input:focus, textarea:focus, select:focus {
+  outline: none;
+  border-color: var(--navy);
+  background: #fff;
+}
+textarea { resize: vertical; min-height: 70px; }
+
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+.grid-4 { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 12px; }
+
+/* BUTTONS */
+.btn {
+  padding: 8px 18px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+  transition: all .15s;
+}
+.btn-primary { background: var(--navy); color: #fff; }
+.btn-primary:hover { background: var(--navy-light); }
+.btn-success { background: #16a34a; color: #fff; }
+.btn-warning { background: #d97706; color: #fff; font-size: 12px; padding: 5px 10px; }
+.btn-danger { background: #dc2626; color: #fff; font-size: 12px; padding: 5px 10px; }
+.btn-info { background: #0284c7; color: #fff; font-size: 12px; padding: 5px 10px; }
+.btn-sm { font-size: 11px; padding: 4px 10px; }
+
+/* TABLES */
+table { width: 100%; border-collapse: collapse; font-size: 13px; }
+th {
+  background: var(--navy);
+  color: #fff;
+  padding: 9px 10px;
+  text-align: left;
+  font-weight: 600;
+  font-size: 12px;
+}
+td { border: 1px solid var(--border); padding: 8px 10px; vertical-align: top; }
+tr:nth-child(even) td { background: #f8fafc; }
+tr:hover td { background: #eff6ff; }
+
+/* RATING BADGES */
+.badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .5px;
+}
+.badge-high { background: #fee2e2; color: var(--high); }
+.badge-medium { background: #fef3c7; color: var(--medium); }
+.badge-low { background: #dcfce7; color: var(--low); }
+.badge-open { background: var(--tag-open); color: var(--high); border: 1px solid #fca5a5; }
+.badge-closed { background: var(--tag-closed); color: var(--low); border: 1px solid #86efac; }
+.badge-pending { background: var(--tag-pending); color: var(--medium); border: 1px solid #fcd34d; }
+
+/* PAGE TITLES */
+.page-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--navy);
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.page-title::before {
+  content: '';
+  display: block;
+  width: 4px;
+  height: 24px;
+  background: var(--gold);
+  border-radius: 2px;
+}
+
+/* CHECKLIST */
+.checklist-section { margin-bottom: 18px; }
+.checklist-section-title {
+  background: var(--navy);
+  color: #fff;
+  padding: 8px 14px;
+  font-size: 13px;
+  font-weight: 700;
+  border-radius: 5px 5px 0 0;
+  letter-spacing: .3px;
+}
+.checklist-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 9px 14px;
+  border: 1px solid var(--border);
+  border-top: none;
+  background: #fff;
+  transition: background .1s;
+}
+.checklist-item:last-child { border-radius: 0 0 5px 5px; }
+.checklist-item:hover { background: #f0f6ff; }
+.checklist-text { flex: 1; font-size: 13px; }
+.checklist-controls { display: flex; gap: 6px; align-items: center; }
+.cl-radio { display: flex; align-items: center; gap: 4px; font-size: 11px; font-weight: 600; cursor: pointer; }
+.cl-radio input[type=radio] { width: auto; accent-color: var(--navy); }
+
+/* MODAL */
+.modal-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.5);
+  z-index: 1000;
+  align-items: center;
+  justify-content: center;
+}
+.modal-overlay.open { display: flex; }
+.modal {
+  background: #fff;
+  border-radius: 10px;
+  padding: 28px;
+  width: 90%;
+  max-width: 750px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 60px rgba(0,0,0,.3);
+}
+.modal h3 {
+  font-size: 16px;
+  color: var(--navy);
+  margin-bottom: 16px;
+  padding-bottom: 10px;
+  border-bottom: 2px solid var(--bg);
+}
+.modal-footer { display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px; }
+
+/* REPORT */
+#reportOut {
+  font-family: 'Times New Roman', serif;
+  font-size: 13px;
+  line-height: 1.7;
+  padding: 10px;
+}
+
+/* PRINT STYLES */
+@media print {
+  nav, .noprint, #company, #checklist, #obs, #atr, #stock, #attachments, #clientreport,
+  .preview-modal-overlay, .modal-overlay, .dropzone, header { display: none !important; }
+  #report { display: block !important; max-width: 100%; padding: 0; }
+  body { background: #fff; }
+  .page { padding: 0; }
+  .card { box-shadow: none; border: none; padding: 0; }
+  #reportOut { padding: 0; }
+  .print-running-header { display: none !important; }
+  .obs-print-block { page-break-inside: avoid; }
+  @page { margin: 18mm 15mm 18mm 15mm; }
+}
+
+/* UTIL */
+.mt { margin-top: 12px; }
+.flex-end { display: flex; justify-content: flex-end; margin-top: 12px; gap: 10px; }
+.text-muted { color: var(--muted); font-size: 12px; }
+.separator { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
+
+/* FILE UPLOAD / DROPZONE */
+.dropzone {
+  border: 2px dashed var(--border);
+  border-radius: 8px;
+  padding: 18px;
+  text-align: center;
+  color: var(--muted);
+  font-size: 13px;
+  cursor: pointer;
+  transition: all .15s;
+  margin-top: 10px;
+  background: #f9fafb;
+}
+.dropzone:hover, .dropzone.dragover {
+  border-color: var(--navy);
+  background: #eff6ff;
+  color: var(--navy);
+}
+.dropzone .dz-icon { font-size: 24px; display: block; margin-bottom: 6px; }
+
+/* ATTACHMENT CHIPS */
+.attach-list { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+.attach-chip {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  border-radius: 6px;
+  padding: 5px 10px;
+  font-size: 12px;
+  color: var(--navy);
+  max-width: 220px;
+}
+.attach-chip .ac-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; cursor: pointer; }
+.attach-chip .ac-name:hover { text-decoration: underline; }
+.attach-chip .ac-remove {
+  cursor: pointer;
+  color: var(--high);
+  font-weight: 700;
+  border: none;
+  background: none;
+  font-size: 14px;
+  line-height: 1;
+  padding: 0 2px;
+}
+.attach-chip .ac-size { color: var(--muted); font-size: 10px; white-space: nowrap; }
+
+/* EXCEL PREVIEW TABLE WRAP */
+.xlsx-preview-wrap { overflow-x: auto; margin-top: 8px; max-height: 260px; overflow-y: auto; border: 1px solid var(--border); border-radius: 6px; }
+.xlsx-preview-wrap table { font-size: 11px; }
+.xlsx-preview-wrap th { position: sticky; top: 0; }
+
+/* PRINT PREVIEW MODAL */
+.preview-modal-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(15,23,42,.65);
+  z-index: 2000;
+  align-items: center;
+  justify-content: center;
+}
+.preview-modal-overlay.open { display: flex; }
+.preview-modal {
+  background: #525659;
+  border-radius: 8px;
+  width: 95%;
+  max-width: 950px;
+  height: 92vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0 20px 60px rgba(0,0,0,.5);
+}
+.preview-toolbar {
+  background: var(--navy);
+  color: #fff;
+  padding: 10px 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-shrink: 0;
+}
+.preview-toolbar .pt-title { font-weight: 700; font-size: 14px; display: flex; align-items: center; gap: 8px; }
+.preview-toolbar .pt-actions { display: flex; gap: 8px; }
+.preview-toolbar button {
+  background: rgba(255,255,255,.12);
+  border: 1px solid rgba(255,255,255,.3);
+  color: #fff;
+  padding: 7px 14px;
+  border-radius: 5px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.preview-toolbar button:hover { background: rgba(255,255,255,.25); }
+.preview-toolbar button.pt-close { background: var(--gold); border-color: var(--gold); }
+.preview-toolbar button.pt-close:hover { background: var(--gold-light); }
+.preview-body {
+  flex: 1;
+  overflow: auto;
+  padding: 28px;
+  display: flex;
+  justify-content: center;
+}
+.preview-page {
+  background: #fff;
+  width: 100%;
+  max-width: 820px;
+  min-height: 1120px;
+  padding: 0;
+  box-shadow: 0 0 40px rgba(0,0,0,.5), 0 0 0 1px rgba(255,255,255,.05);
+  font-family: 'Georgia', 'Times New Roman', serif;
+  font-size: 12.5px;
+  line-height: 1.75;
+  color: #1a1a2e;
+  overflow: hidden;
+}
+
+/* ATTACHMENTS PAGE */
+.attach-card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px; margin-top: 12px; }
+.attach-card {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 12px;
+  background: #fff;
+  font-size: 12px;
+}
+.attach-card .ac-title { font-weight: 700; color: var(--navy); margin-bottom: 6px; word-break: break-word; }
+.attach-card .ac-meta { color: var(--muted); font-size: 11px; margin-bottom: 8px; }
+.attach-card .ac-actions { display: flex; gap: 6px; }
+
+@media print {
+  .preview-modal-overlay, .modal-overlay, .dropzone, #attachments { display: none !important; }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-top">
+    <div class="header-left">
+      <img src="data:image/png;base64,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" style="width:46px;height:46px;border-radius:50%;object-fit:contain;background:#fff;padding:2px;box-shadow:0 2px 8px rgba(0,0,0,.25);flex-shrink:0;">
+      <div>
+        <div class="header-firm">GARV <span>&amp;</span> Associates</div>
+        <div class="header-sub">Chartered Accountants</div>
+      </div>
+    </div>
+    <div class="header-right">
+      <div class="header-title">Internal Audit Observation System</div>
+      <div class="header-version">Professional Edition</div>
+    </div>
+  </div>
+  <nav class="noprint">
+    <button onclick="show('company')" id="nav-company" class="active-nav">Company Details</button>
+    <button onclick="show('obs')" id="nav-obs">Observations</button>
+    <button onclick="show('atr')" id="nav-atr">ATR</button>
+    <button onclick="show('checklist')" id="nav-checklist">Checklist</button>
+    <button onclick="show('stock')" id="nav-stock">Stock Verification</button>
+    <button onclick="show('attachments')" id="nav-attachments">Attachments</button>
+    <button onclick="show('report')" id="nav-report">Report</button>
+    <button onclick="show('clientreport')" id="nav-clientreport">📋 Client Report</button>
+    <div class="nav-actions">
+      <button onclick="saveBackup()">💾 Save File</button>
+      <button onclick="document.getElementById('restore').click()">📂 Restore</button>
+      <button onclick="openPrintPreview()">🖨 Print Preview</button>
+      <input type="file" id="restore" style="display:none">
+    </div>
+  </nav>
+</header>
+
+<!-- COMPANY DETAILS -->
+<div id="company" class="page active">
+  <div class="page-title">Company Details</div>
+  <div class="card">
+    <h3>Audit Engagement Information</h3>
+    <div class="grid-2">
+      <div>
+        <label>Company Name</label>
+        <input id="cname" placeholder="e.g. ABC Pvt. Ltd.">
+      </div>
+      <div>
+        <label>Financial Year</label>
+        <input id="fy" placeholder="e.g. 2024-25">
+      </div>
+      <div>
+        <label>Audit Period</label>
+        <input id="aperiod" placeholder="e.g. April 2024 – March 2025">
+      </div>
+      <div>
+        <label>Engagement Partner</label>
+        <input id="partner" placeholder="Partner name">
+      </div>
+      <!-- Auditor Name field hidden from Company Details but retained for report use -->
+      <div style="display:none;">
+        <input id="auditor" placeholder="e.g. CA Rahul Sharma">
+      </div>
+      <div>
+        <label>Report Date</label>
+        <input id="rdate" type="date">
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- OBSERVATIONS -->
+<div id="obs" class="page">
+  <div class="page-title">Observations</div>
+  <div class="card">
+    <h3>Add New Observation</h3>
+    <div class="grid-2">
+      <div>
+        <label>Audit Area</label>
+        <input id="area" placeholder="e.g. Cash & Bank, Revenue...">
+      </div>
+      <div>
+        <label>Risk Rating</label>
+        <select id="rating">
+          <option>High</option>
+          <option>Medium</option>
+          <option selected>Low</option>
+        </select>
+      </div>
+    </div>
+    <label>Observation</label>
+    <textarea id="obsText" placeholder="Describe the observation in detail..."></textarea>
+    <label>Risk / Implication</label>
+    <textarea id="risk" placeholder="What risk does this observation pose?"></textarea>
+    <label>Auditor's Recommendation</label>
+    <textarea id="rec" placeholder="What does the auditor recommend?"></textarea>
+    <label>Management Response</label>
+    <textarea id="mgmtRec" placeholder="Management's response, corrective action, and implementation plan..."></textarea>
+    <label>Working Notes / Supporting Evidence</label>
+    <textarea id="working" rows="4" placeholder="Auditor workings, calculations, references, document numbers, procedures performed..."></textarea>
+    <label>Supporting Files (Excel, PDF, Images, Docs)</label>
+    <div class="dropzone" id="obsDropzone" onclick="document.getElementById('obsFileInput').click()">
+      <span class="dz-icon">📎</span>
+      Click or drag files here to attach (Excel workings, scanned vouchers, photos, PDFs...)
+      <input type="file" id="obsFileInput" multiple style="display:none">
+    </div>
+    <div class="attach-list" id="obsAttachList"></div>
+    <div class="flex-end">
+      <button class="btn btn-primary" onclick="addObs()">+ Add Observation</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>Observation Register</h3>
+    <table>
+      <thead>
+        <tr>
+          <th style="width:50px">Obs #</th>
+          <th>Area</th>
+          <th>Observation (Summary)</th>
+          <th style="width:80px">Rating</th>
+          <th style="width:90px">Files</th>
+          <th style="width:130px">Actions</th>
+        </tr>
+      </thead>
+      <tbody id="obsTbl"></tbody>
+    </table>
+    <p id="obsEmpty" class="text-muted mt" style="display:none">No observations added yet. Use the form above to add one.</p>
+  </div>
+</div>
+
+<!-- ATR -->
+<div id="atr" class="page">
+  <div class="page-title">Action Taken Report (ATR)</div>
+  <div class="card">
+    <h3>Add ATR Entry</h3>
+    <div class="grid-3">
+      <div>
+        <label>Observation No.</label>
+        <input id="atrObs" placeholder="e.g. 1, 2, 3">
+      </div>
+      <div>
+        <label>Responsible Person</label>
+        <input id="atrResp" placeholder="Name / Department">
+      </div>
+      <div>
+        <label>Target Date</label>
+        <input id="atrDate" type="date">
+      </div>
+    </div>
+    <label>Management Response / Action Taken</label>
+    <textarea id="resp" placeholder="Detail the action taken by management..."></textarea>
+    <div class="grid-2">
+      <div>
+        <label>Status</label>
+        <select id="status">
+          <option>Open</option>
+          <option>Closed</option>
+          <option>In Progress</option>
+        </select>
+      </div>
+      <div>
+        <label>Verification by Auditor</label>
+        <input id="atrVerify" placeholder="Auditor remarks on verification">
+      </div>
+    </div>
+    <div class="flex-end">
+      <button class="btn btn-primary" onclick="addATR()">+ Add ATR</button>
+    </div>
+  </div>
+  <div class="card">
+    <h3>ATR Register</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>Obs #</th>
+          <th>Management Response</th>
+          <th>Responsible</th>
+          <th>Target Date</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody id="atrTbl"></tbody>
+    </table>
+    <p id="atrEmpty" class="text-muted mt" style="display:none">No ATR entries yet.</p>
+  </div>
+</div>
+
+<!-- CHECKLIST -->
+<div id="checklist" class="page">
+  <div class="page-title">Internal Audit Checklist</div>
+  <div class="card noprint" style="padding:12px 18px;margin-bottom:14px;">
+    <span style="font-size:13px;color:var(--muted);">Mark each item: </span>
+    <span style="margin:0 10px;"><span style="color:#16a34a;font-weight:700;">✓ Done</span></span>
+    <span style="margin:0 10px;"><span style="color:#d97706;font-weight:700;">⏳ Pending</span></span>
+    <span style="margin:0 10px;"><span style="color:#6b7280;font-weight:700;">N/A</span></span>
+    &nbsp;|&nbsp; Status is saved automatically.
+  </div>
+  <div id="checklistContainer"></div>
+</div>
+
+<!-- STOCK -->
+<div id="stock" class="page">
+  <div class="page-title">Stock Verification</div>
+  <div class="card">
+    <h3>Add Stock Entry</h3>
+    <div class="grid-4">
+      <div>
+        <label>Item Description</label>
+        <input id="item" placeholder="Item name">
+      </div>
+      <div>
+        <label>Book Quantity</label>
+        <input id="book" type="number" placeholder="0">
+      </div>
+      <div>
+        <label>Physical Quantity</label>
+        <input id="phy" type="number" placeholder="0">
+      </div>
+      <div>
+        <label>Unit</label>
+        <input id="unit" placeholder="Nos / Kgs / Ltrs">
+      </div>
+    </div>
+    <label>Remarks</label>
+    <input id="stockRemarks" placeholder="Any remarks or reasons for variance">
+    <label>Supporting Files</label>
+    <div class="dropzone" id="stockDropzone" onclick="document.getElementById('stockFileInput').click()">
+      <span class="dz-icon">📎</span>
+      Click or drag files here (stock sheets, photos of physical count, etc.)
+      <input type="file" id="stockFileInput" multiple style="display:none">
+    </div>
+    <div class="attach-list" id="stockAttachList"></div>
+    <div class="flex-end">
+      <button class="btn btn-primary" onclick="addStock()">+ Add Item</button>
+    </div>
+  </div>
+  <div class="card">
+    <h3>Stock Register</h3>
+    <table>
+      <thead>
+        <tr><th>Item</th><th>Book Qty</th><th>Physical Qty</th><th>Variance</th><th>Unit</th><th>Remarks</th><th>Files</th><th>Action</th></tr>
+      </thead>
+      <tbody id="stockTbl"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ATTACHMENTS / WORKING PAPERS -->
+<div id="attachments" class="page">
+  <div class="page-title">Working Papers &amp; Attachments</div>
+  <div class="card">
+    <h3>Upload Working Papers (Excel, PDF, Word, Images)</h3>
+    <div class="dropzone" id="globalDropzone" onclick="document.getElementById('globalFileInput').click()">
+      <span class="dz-icon">📁</span>
+      Click or drag files here to upload — Excel working papers, scanned vouchers, bank statements, supporting documents, etc.
+      <input type="file" id="globalFileInput" multiple style="display:none">
+    </div>
+    <p class="text-muted mt">Files are stored locally in this browser (within your saved backup file). Excel files (.xlsx/.xls/.csv) can be previewed directly below.</p>
+  </div>
+  <div class="card">
+    <h3>Uploaded Files</h3>
+    <div class="attach-card-grid" id="globalAttachGrid"></div>
+    <p id="globalAttachEmpty" class="text-muted mt" style="display:none">No files uploaded yet.</p>
+  </div>
+  <div class="card" id="xlsxPreviewCard" style="display:none">
+    <h3 id="xlsxPreviewTitle">Excel Preview</h3>
+    <div id="xlsxSheetTabs" class="mt"></div>
+    <div class="xlsx-preview-wrap"><table id="xlsxPreviewTable"></table></div>
+  </div>
+</div>
+
+<!-- REPORT -->
+<div id="report" class="page">
+  <div class="page-title noprint">Report Preview</div>
+  <div class="noprint card" style="padding:12px 18px;">
+    <button class="btn btn-primary" onclick="generateReport()">⚙ Generate Report</button>
+    &nbsp;
+    <button class="btn btn-success" onclick="openPrintPreview()">🖨 Print Preview</button>
+  </div>
+  <div id="reportOut"></div>
+</div>
+
+<!-- CLIENT REPORT (Observations & Findings only) -->
+<div id="clientreport" class="page">
+  <div class="page-title noprint">Client Report — Observations &amp; Findings</div>
+  <div class="noprint card" style="padding:12px 18px;display:flex;align-items:center;gap:10px;">
+    <span style="font-size:12px;color:var(--muted);">This report contains only Observations &amp; Findings — suitable for sharing with the client. ATR, Executive Summary, and Footer are excluded.</span>
+    <button class="btn btn-success" style="margin-left:auto;" onclick="openClientPrintPreview()">🖨 Print / Export Client Report</button>
+  </div>
+  <div id="clientReportOut"></div>
+</div>
+
+<!-- CLIENT PRINT PREVIEW MODAL -->
+<div class="preview-modal-overlay" id="clientPrintPreviewModal">
+  <div class="preview-modal">
+    <div class="preview-toolbar">
+      <div class="pt-title">📋 Client Report Preview — Observations &amp; Findings</div>
+      <div class="pt-actions">
+        <button onclick="doClientPrint()">🖨 Print / Save as PDF</button>
+        <button class="pt-close" onclick="closeClientPrintPreview()">✕ Close</button>
+      </div>
+    </div>
+    <div class="preview-body">
+      <div class="preview-page" id="clientPreviewPage"></div>
+    </div>
+  </div>
+</div>
+<div class="modal-overlay" id="editModal">
+  <div class="modal">
+    <h3>Edit Observation</h3>
+    <input type="hidden" id="editId">
+    <div class="grid-2">
+      <div>
+        <label>Audit Area</label>
+        <input id="editArea" placeholder="Audit Area">
+      </div>
+      <div>
+        <label>Risk Rating</label>
+        <select id="editRating">
+          <option>High</option>
+          <option>Medium</option>
+          <option>Low</option>
+        </select>
+      </div>
+    </div>
+    <label>Observation</label>
+    <textarea id="editObs"></textarea>
+    <label>Risk / Implication</label>
+    <textarea id="editRisk"></textarea>
+    <label>Auditor's Recommendation</label>
+    <textarea id="editRec"></textarea>
+    <label>Management Response</label>
+    <textarea id="editMgmtRec"></textarea>
+    <label>Working Notes / Supporting Evidence</label>
+    <textarea id="editWorking" rows="4"></textarea>
+    <div class="modal-footer">
+      <button class="btn btn-warning" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="saveEdit()">Save Changes</button>
+    </div>
+  </div>
+</div>
+
+<!-- PRINT PREVIEW MODAL -->
+<div class="preview-modal-overlay" id="printPreviewModal">
+  <div class="preview-modal">
+    <div class="preview-toolbar">
+      <div class="pt-title">🖨 Print Preview — Internal Audit Report</div>
+      <div class="pt-actions">
+        <button onclick="doActualPrint()">🖨 Print / Save as PDF</button>
+        <button class="pt-close" onclick="closePrintPreview()">✕ Close</button>
+      </div>
+    </div>
+    <div class="preview-body">
+      <div class="preview-page" id="previewPage"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ─── DATA ────────────────────────────────────────────────
+let obs = [], atr = [], stocks = [], checklistState = {}, globalFiles = [];
+let obsCounter = 0;
+let currentObsFiles = []; // files staged for new observation
+let currentStockFiles = []; // files staged for new stock entry
+
+// ─── CHECKLIST DEFINITIONS ────────────────────────────────
+const CHECKLIST = [
+  {
+    section: "Cash & Bank",
+    items: [
+      "Verify cash book with physical cash balance",
+      "Check bank reconciliation statement",
+      "Verify bank certificates / confirmations",
+      "Review petty cash management and limits",
+      "Check authorization for cash withdrawals",
+      "Verify adequacy of insurance coverage on cash"
+    ]
+  },
+  {
+    section: "Revenue & Receivables",
+    items: [
+      "Verify revenue recognition policy compliance",
+      "Test sales transactions for proper authorization",
+      "Review debtors ageing analysis",
+      "Check credit limits and approval process",
+      "Verify provision for bad and doubtful debts",
+      "Review customer confirmations / balance confirmations",
+      "Check cut-off procedures for revenue"
+    ]
+  },
+  {
+    section: "Purchases & Payables",
+    items: [
+      "Verify purchase orders, approvals and three-way matching",
+      "Check vendor registration and due diligence process",
+      "Review creditors ageing and reconciliations",
+      "Verify vendor confirmations / statements",
+      "Check payment terms and early payment discounts",
+      "Review returns and debit notes"
+    ]
+  },
+  {
+    section: "Fixed Assets",
+    items: [
+      "Verify fixed asset register completeness and accuracy",
+      "Physical verification of assets",
+      "Check depreciation computation and policy",
+      "Verify capitalization vs revenue expenditure",
+      "Check assets under construction (CWIP) status",
+      "Review disposal / write-off approvals",
+      "Verify insurance coverage of assets"
+    ]
+  },
+  {
+    section: "Inventory / Stock",
+    items: [
+      "Verify physical stock with book stock",
+      "Review slow-moving and non-moving inventory",
+      "Check inventory valuation method (FIFO/LIFO/Weighted Avg)",
+      "Review stock shortage / excess and authorization",
+      "Check goods received not invoiced (GRNI)",
+      "Verify stock held at third-party locations"
+    ]
+  },
+  {
+    section: "Payroll",
+    items: [
+      "Verify payroll process and authorization controls",
+      "Check attendance / leave records",
+      "Review PF, ESIC, PT compliance and deposits",
+      "Check bonus, gratuity and leave encashment provisions",
+      "Verify salary register and bank payment records",
+      "Check for ghost employees",
+      "Review payroll changes authorization"
+    ]
+  },
+  {
+    section: "GST Compliance",
+    items: [
+      "Verify GST registration and applicability",
+      "Check timely filing of GSTR-1, GSTR-3B, GSTR-9",
+      "Reconcile GST returns with books of accounts",
+      "Verify Input Tax Credit (ITC) eligibility and utilization",
+      "Check E-way bill compliance",
+      "Review GST on advances received",
+      "Verify RCM (Reverse Charge Mechanism) applicability"
+    ]
+  },
+  {
+    section: "TDS / TCS",
+    items: [
+      "Verify TDS deduction at correct rates",
+      "Check timely deposit of TDS to government",
+      "Verify filing of TDS returns (24Q, 26Q, 27Q)",
+      "Check Form 16 / 16A issuance",
+      "Verify TCS applicability and compliance",
+      "Review lower deduction / NIL deduction certificates"
+    ]
+  },
+  {
+    section: "Statutory Compliance",
+    items: [
+      "Check Companies Act compliance",
+      "Verify board / committee meeting minutes and resolutions",
+      "Review ROC filings (MGT-7, AOC-4, etc.)",
+      "Check Labour Law compliance (Shops & Establishment, etc.)",
+      "Verify FEMA compliance for foreign transactions",
+      "Review environmental / statutory licenses"
+    ]
+  },
+  {
+    section: "Related Party Transactions",
+    items: [
+      "Identify all related parties as per AS-18 / Ind AS 24",
+      "Verify approval process for related party transactions",
+      "Check that transactions are at arm's length",
+      "Review RPT disclosures in financial statements",
+      "Verify loans to related parties and interest charged",
+      "Check audit committee / board approval for RPT"
+    ]
+  },
+  {
+    section: "Loans & Advances",
+    items: [
+      "Verify authorization for granting loans / advances",
+      "Check recovery status of outstanding advances",
+      "Review interest computation on loans",
+      "Verify provision for doubtful advances",
+      "Check compliance with Section 185 / 186 of Companies Act",
+      "Reconcile inter-company loan balances"
+    ]
+  },
+  {
+    section: "Expense Verification",
+    items: [
+      "Verify expense authorization limits and approvals",
+      "Check supporting documentation for expenses",
+      "Review travel and entertainment expenses",
+      "Verify accruals and prepaid expenses",
+      "Check unusual / one-time expenses",
+      "Review repair & maintenance vs capital expenditure"
+    ]
+  },
+  {
+    section: "Financial Reporting Controls",
+    items: [
+      "Verify trial balance and financial statement preparation process",
+      "Check month-end / year-end closing procedures",
+      "Review journal entry controls and authorization",
+      "Verify balance sheet reconciliations",
+      "Check presentation and disclosure requirements",
+      "Review segment reporting (if applicable)"
+    ]
+  },
+  {
+    section: "IT & System Controls",
+    items: [
+      "Verify user access controls and segregation of duties",
+      "Check password policies and periodic review",
+      "Review data backup and recovery procedures",
+      "Verify audit trail / logs in accounting system",
+      "Check change management procedures",
+      "Review cyber security and data protection measures"
+    ]
+  },
+  {
+    section: "Authorization & Approval Controls",
+    items: [
+      "Verify Delegation of Authority (DOA) / Power of Attorney",
+      "Check approval hierarchy for transactions",
+      "Review controls over blank cheques / NEFT",
+      "Verify dual controls for critical transactions",
+      "Check override controls and exception reports"
+    ]
+  },
+  {
+    section: "Risk Management & Compliance",
+    items: [
+      "Verify risk register is maintained and updated",
+      "Check adequacy of internal controls for identified risks",
+      "Review compliance calendar and adherence",
+      "Verify whistle-blower policy implementation",
+      "Check insurance coverage adequacy review",
+      "Review prior audit observations and compliance status"
+    ]
+  }
+];
+
+// ─── NAVIGATION ───────────────────────────────────────────
+function show(id) {
+  document.querySelectorAll('.page').forEach(x => x.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  document.querySelectorAll('nav button[id^="nav-"]').forEach(b => b.classList.remove('active-nav'));
+  const nb = document.getElementById('nav-' + id);
+  if (nb) nb.classList.add('active-nav');
+  if (id === 'clientreport') generateClientReport();
+}
+
+// ─── PERSIST / LOAD ───────────────────────────────────────
+function persist() {
+  const data = {
+    company: {
+      cname: cname.value, fy: fy.value, aperiod: aperiod.value,
+      auditor: auditor.value, partner: partner.value, rdate: rdate.value
+    },
+    obs, atr, stocks, checklistState, obsCounter, globalFiles
+  };
+  localStorage.setItem("audit_v50", JSON.stringify(data));
+}
+
+function loadData() {
+  let d = localStorage.getItem("audit_v50");
+  if (!d) { buildChecklist(); return; }
+  d = JSON.parse(d);
+  if (d.company) {
+    cname.value = d.company.cname || "";
+    fy.value = d.company.fy || "";
+    aperiod.value = d.company.aperiod || "";
+    auditor.value = d.company.auditor || "";
+    partner.value = d.company.partner || "";
+    rdate.value = d.company.rdate || "";
+  }
+  obs = d.obs || [];
+  atr = d.atr || [];
+  stocks = d.stocks || [];
+  checklistState = d.checklistState || {};
+  obsCounter = d.obsCounter || obs.length;
+  globalFiles = d.globalFiles || [];
+  buildChecklist();
+  renderAll();
+}
+
+// ─── RENDER ALL ───────────────────────────────────────────
+function renderAll() {
+  renderObs();
+  renderATR();
+  renderStock();
+  renderChecklistState();
+  renderGlobalAttachments();
+}
+
+// ─── OBSERVATIONS ─────────────────────────────────────────
+function addObs() {
+  obsCounter++;
+  obs.push({
+    id: Date.now(),
+    seq: obsCounter,
+    area: area.value,
+    text: obsText.value,
+    risk: risk.value,
+    rec: rec.value,
+    mgmtRec: mgmtRec.value,
+    working: working.value,
+    rate: rating.value,
+    files: currentObsFiles
+  });
+  area.value = ""; obsText.value = ""; risk.value = "";
+  rec.value = ""; mgmtRec.value = ""; working.value = "";
+  currentObsFiles = [];
+  document.getElementById('obsAttachList').innerHTML = "";
+  renderObs(); persist();
+}
+
+function renderObs() {
+  const tbody = document.getElementById('obsTbl');
+  const empty = document.getElementById('obsEmpty');
+  tbody.innerHTML = "";
+  if (!obs.length) { empty.style.display = 'block'; return; }
+  empty.style.display = 'none';
+  obs.forEach(o => {
+    const rateClass = o.rate === 'High' ? 'badge-high' : o.rate === 'Medium' ? 'badge-medium' : 'badge-low';
+    const preview = (o.text || '').substring(0, 70) + ((o.text || '').length > 70 ? '...' : '');
+    const fileCount = (o.files || []).length;
+    const fileBadge = fileCount ? `<span class="badge badge-pending" style="cursor:pointer" onclick="viewFiles('obs', ${o.id})">📎 ${fileCount}</span>` : '<span class="text-muted">—</span>';
+    tbody.innerHTML += `<tr>
+      <td style="font-weight:700;color:var(--navy);">OBS-${String(o.seq).padStart(3,'0')}</td>
+      <td>${o.area}</td>
+      <td>${preview}</td>
+      <td><span class="badge ${rateClass}">${o.rate}</span></td>
+      <td>${fileBadge}</td>
+      <td>
+        <button class="btn btn-info btn-sm" onclick="openEdit(${o.id})" style="margin-bottom:4px">✏ Edit</button>
+        <button class="btn btn-danger btn-sm" onclick="delObs(${o.id})">🗑 Delete</button>
+      </td>
+    </tr>`;
+  });
+}
+
+function delObs(id) {
+  if (!confirm('Delete this observation? This cannot be undone.')) return;
+  obs = obs.filter(x => x.id !== id);
+  renderObs(); persist();
+}
+
+function openEdit(id) {
+  const o = obs.find(x => x.id === id);
+  if (!o) return;
+  document.getElementById('editId').value = id;
+  document.getElementById('editArea').value = o.area || '';
+  document.getElementById('editRating').value = o.rate || 'Low';
+  document.getElementById('editObs').value = o.text || '';
+  document.getElementById('editRisk').value = o.risk || '';
+  document.getElementById('editRec').value = o.rec || '';
+  document.getElementById('editMgmtRec').value = o.mgmtRec || '';
+  document.getElementById('editWorking').value = o.working || '';
+  document.getElementById('editModal').classList.add('open');
+}
+
+function closeModal() {
+  document.getElementById('editModal').classList.remove('open');
+}
+
+function saveEdit() {
+  const id = parseInt(document.getElementById('editId').value);
+  const o = obs.find(x => x.id === id);
+  if (!o) return;
+  o.area = document.getElementById('editArea').value;
+  o.rate = document.getElementById('editRating').value;
+  o.text = document.getElementById('editObs').value;
+  o.risk = document.getElementById('editRisk').value;
+  o.rec = document.getElementById('editRec').value;
+  o.mgmtRec = document.getElementById('editMgmtRec').value;
+  o.working = document.getElementById('editWorking').value;
+  closeModal();
+  renderObs(); persist();
+}
+
+// ─── ATR ──────────────────────────────────────────────────
+function addATR() {
+  atr.push({
+    obs: atrObs.value,
+    response: resp.value,
+    responsible: atrResp.value,
+    targetDate: atrDate.value,
+    verify: atrVerify.value,
+    status: status.value
+  });
+  atrObs.value = ""; resp.value = ""; atrResp.value = "";
+  atrDate.value = ""; atrVerify.value = "";
+  renderATR(); persist();
+}
+
+function renderATR() {
+  const tbody = document.getElementById('atrTbl');
+  const empty = document.getElementById('atrEmpty');
+  tbody.innerHTML = "";
+  if (!atr.length) { empty.style.display = 'block'; return; }
+  empty.style.display = 'none';
+  atr.forEach(a => {
+    const sc = a.status === 'Closed' ? 'badge-closed' : a.status === 'In Progress' ? 'badge-pending' : 'badge-open';
+    tbody.innerHTML += `<tr>
+      <td style="font-weight:700">OBS-${String(a.obs).padStart(3,'0')}</td>
+      <td>${a.response}</td>
+      <td>${a.responsible || '-'}</td>
+      <td>${a.targetDate || '-'}</td>
+      <td><span class="badge ${sc}">${a.status}</span></td>
+    </tr>`;
+  });
+}
+
+// ─── STOCK ────────────────────────────────────────────────
+function addStock() {
+  const b = parseFloat(book.value) || 0;
+  const p = parseFloat(phy.value) || 0;
+  stocks.push({ item: item.value, book: b, phy: p, variance: p - b, unit: unit.value, remarks: stockRemarks.value, files: currentStockFiles });
+  item.value = ""; book.value = ""; phy.value = ""; unit.value = ""; stockRemarks.value = "";
+  currentStockFiles = [];
+  document.getElementById('stockAttachList').innerHTML = "";
+  renderStock(); persist();
+}
+
+function renderStock() {
+  const tbody = document.getElementById('stockTbl');
+  tbody.innerHTML = "";
+  stocks.forEach((s, i) => {
+    const vStyle = s.variance < 0 ? 'color:var(--high);font-weight:700' : s.variance > 0 ? 'color:var(--low);font-weight:700' : '';
+    const fileCount = (s.files || []).length;
+    const fileBadge = fileCount ? `<span class="badge badge-pending" style="cursor:pointer" onclick="viewFiles('stock', ${i})">📎 ${fileCount}</span>` : '<span class="text-muted">—</span>';
+    tbody.innerHTML += `<tr>
+      <td>${s.item}</td>
+      <td>${s.book}</td>
+      <td>${s.phy}</td>
+      <td style="${vStyle}">${s.variance > 0 ? '+' : ''}${s.variance}</td>
+      <td>${s.unit || '-'}</td>
+      <td>${s.remarks || '-'}</td>
+      <td>${fileBadge}</td>
+      <td><button class="btn btn-danger btn-sm" onclick="delStock(${i})">Delete</button></td>
+    </tr>`;
+  });
+}
+
+function delStock(i) {
+  stocks.splice(i, 1);
+  renderStock(); persist();
+}
+
+// ─── CHECKLIST ────────────────────────────────────────────
+function buildChecklist() {
+  const container = document.getElementById('checklistContainer');
+  container.innerHTML = "";
+  CHECKLIST.forEach((sec, si) => {
+    const div = document.createElement('div');
+    div.className = 'checklist-section card';
+    div.style.padding = '0';
+    let html = `<div class="checklist-section-title">${sec.section}</div>`;
+    sec.items.forEach((item, ii) => {
+      const key = `cl_${si}_${ii}`;
+      const val = checklistState[key] || 'pending';
+      html += `<div class="checklist-item">
+        <span class="checklist-text">${item}</span>
+        <div class="checklist-controls">
+          <label class="cl-radio"><input type="radio" name="${key}" value="done" onchange="clChange('${key}','done')" ${val==='done'?'checked':''}><span style="color:#16a34a">✓ Done</span></label>
+          <label class="cl-radio"><input type="radio" name="${key}" value="pending" onchange="clChange('${key}','pending')" ${val==='pending'?'checked':''}><span style="color:#d97706">⏳ Pending</span></label>
+          <label class="cl-radio"><input type="radio" name="${key}" value="na" onchange="clChange('${key}','na')" ${val==='na'?'checked':''}><span style="color:#6b7280">N/A</span></label>
+        </div>
+      </div>`;
+    });
+    div.innerHTML = html;
+    container.appendChild(div);
+  });
+}
+
+function renderChecklistState() {
+  CHECKLIST.forEach((sec, si) => {
+    sec.items.forEach((item, ii) => {
+      const key = `cl_${si}_${ii}`;
+      const val = checklistState[key] || 'pending';
+      const radios = document.querySelectorAll(`input[name="${key}"]`);
+      radios.forEach(r => { r.checked = (r.value === val); });
+    });
+  });
+}
+
+function clChange(key, val) {
+  checklistState[key] = val;
+  persist();
+}
+
+// ─── REPORT ───────────────────────────────────────────────
+function generateReport() {
+  const firm = "GARV &amp; ASSOCIATES";
+  const today = new Date().toLocaleDateString('en-IN', { day: '2-digit', month: 'long', year: 'numeric' });
+
+  // Checklist summary
+  let clDone = 0, clPending = 0, clNA = 0, clTotal = 0;
+  CHECKLIST.forEach((sec, si) => {
+    sec.items.forEach((item, ii) => {
+      clTotal++;
+      const v = checklistState[`cl_${si}_${ii}`] || 'pending';
+      if (v === 'done') clDone++;
+      else if (v === 'na') clNA++;
+      else clPending++;
+    });
+  });
+
+  const highCount = obs.filter(o=>o.rate==='High').length;
+  const medCount  = obs.filter(o=>o.rate==='Medium').length;
+  const lowCount  = obs.filter(o=>o.rate==='Low').length;
+
+  let r = `
+  <!-- ══ PRINT-ONLY RUNNING HEADER (repeats via CSS on every page) ══ -->
+  <div class="print-running-header" style="display:none;">
+    <span style="font-weight:700;">GARV &amp; Associates</span> &nbsp;·&nbsp; Chartered Accountants &nbsp;·&nbsp; Internal Audit Observation Report
+  </div>
+
+  <!-- ══ LETTERHEAD ══ -->
+  <div style="background:linear-gradient(135deg,#0f2060 0%,#1e3a8a 60%,#162d73 100%);padding:28px 50px 22px;color:#fff;">
+    <div style="display:flex;align-items:center;justify-content:space-between;">
+      <div style="display:flex;align-items:center;gap:16px;">
+        <img src="data:image/png;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/4gHYSUNDX1BST0ZJTEUAAQEAAAHIAAAAAAQwAABtbnRyUkdCIFhZWiAH4AABAAEAAAAAAABhY3NwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAA9tYAAQAAAADTLQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlkZXNjAAAA8AAAACRyWFlaAAABFAAAABRnWFlaAAABKAAAABRiWFlaAAABPAAAABR3dHB0AAABUAAAABRyVFJDAAABZAAAAChnVFJDAAABZAAAAChiVFJDAAABZAAAAChjcHJ0AAABjAAAADxtbHVjAAAAAAAAAAEAAAAMZW5VUwAAAAgAAAAcAHMAUgBHAEJYWVogAAAAAAAAb6IAADj1AAADkFhZWiAAAAAAAABimQAAt4UAABjaWFlaIAAAAAAAACSgAAAPhAAAts9YWVogAAAAAAAA9tYAAQAAAADTLXBhcmEAAAAAAAQAAAACZmYAAPKnAAANWQAAE9AAAApbAAAAAAAAAABtbHVjAAAAAAAAAAEAAAAMZW5VUwAAACAAAAAcAEcAbwBvAGcAbABlACAASQBuAGMALgAgADIAMAAxADb/2wBDAAUDBAQEAwUEBAQFBQUGBwwIBwcHBw8LCwkMEQ8SEhEPERETFhwXExQaFRERGCEYGh0dHx8fExciJCIeJBweHx7/2wBDAQUFBQcGBw4ICA4eFBEUHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh7/wAARCACUALUDASIAAhEBAxEB/8QAHQABAAICAwEBAAAAAAAAAAAAAAcIBQYBAwQCCf/EAEAQAAEDAwIDBgQCBwUJAAAAAAEAAgMEBREGBxIhMQgTQVFhcRQiMoFikRYjM0JScqEVFyRD0URUgpOissHC4f/EABoBAQADAQEBAAAAAAAAAAAAAAABBAUDBgL/xAAwEQACAgEBBAgFBQEAAAAAAAAAAQIDEQQFEiExEyJBUWGhsfAUcYGRwQYVI0Ki4f/aAAwDAQACEQMRAD8AuWiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCLzvrqJji19ZTtI6gygf+U+Pof8Afab/AJrf9VOGRk9CLpjq6SR4ZHVQPcegbICSu5QSEXxPNDTxOlnlZFG3q97g0D7lcxSRzRtlikbIxwy1zTkEehQH0iIgCIiAIiIAiIgCIiAIiIAiIgCIos7Rm4r9D6WZR2yUNvdzDmUx8YWD65ftkAep9F0qqlbNQjzZzttjVBzlyR5t5d7rRomWWzWeKK7X5vJ8Zf8AqaU4/wAwjmT+AYPmQq33rXu42ubgYH3S6VcjulJb2uaxufws6e5/NZ3ZDaWv3ErH3a61E9LY45T31QDmWqfnLmsJ9erznx8elt9K6YsGlrcygsFqpqGBgx+rb8zvVzj8zj6kkrWlZp9D1Irel3mRGvU67rye7Hu9+/Ap3Q7O7p3GLvxYathdzPxVU1jv+p2V2/3I7qt62WTH4bg0/wDsrrouX7vd3L39Tt+0U9rfv6FNdNbQ7r0mprZUC2T0fc1UTzUfGtxGA4Ek4dz5Z9+iuS3IaA45OOZXK1Dd/WEeiNB197y01Qb3VGw/vzO5N+w6n0CrXaizVzimlnwLNOnr0cJNN458Su/at11LfNYP0nQ1Dv7LtXyVLWu+WaoPN2fMMGB78Xksn2RdczUl9l0Tcap7qWsYZbeJHkiORoy6NuegLRkD8JUebT6Qp9Y3qrrtSVNwis8EjW1tZT44+/mfhhLnAgDiOScHw9Vgr7b7xoPXc9EZTDdLNWh8EwGA4sdxRyAfwuGDjyOD4rc6CqVT0y5pefeYXT2xtWqfJvy7vfcfoIiwegtR0mrdI27UFGQI6uEPcwH9m/o5v2OQs4vMSi4vDPURkpJNBERQSEREAREQBERAEREAREQBUj3Trq/cbfKqoqSbiEte21UBxlsUbHcBdjxGeOQ+/srqXSZ1PbKqoZ9UUL3j3DSVSzs8MZU742WSfm4SzTAk9X8Dv9StXZnUVlvakZO0+u66uxsuVpmy2/TtgobHa4e6o6KFsMTepwB1J8SepPiSVkURZbbbyzVSSWEERFBIVPu1RrR+pdeDT9A98tvsx7kMYM99VO+sgeOOTB6h3mrG70axj0RoGuu7XD4x47iiYTzdM4HH5c3ewVaezXpeHUWvzfr3Mz4G1OFVJJO4NE1Q4ng5nrgguPqAtTQRjVGWps5Ll8zK2hKV0o6avm+fyLDbS7eUen9p2aZu1O2We5QOfdR/E+VuHMB/CMNHtnxUI9oDTtXU6epb9VEzXqwyiz3iXHzVEY509Sf52kE+RcR4Kydw1npihyJrzSlw8I3cZ/oow11qXTd5udU2npKqspbnbpLfcIeHgMw6xPbnJ4mEuwcePoFlLb2l01vSW2rOe/j9l75Gu9garVU9HVU8Yxywvu/fM0zsfa0+EvFVoitlxDWB1TQcR6SgZkYPdo4sfhcrQOcGtLnEADqSeiqtt9s3fYbrQ3aljrIKmklbNDVTnuWtc3o7h6n2PIg4OVKFxhsNG/vNa60qrxMw5NHTzERg+Raz/wCKtrtsVaizpNNB7r7ZdWPnx/yfWn2d+30Y110Y47E95+XD/RJJvlsdUmmgqm1U46x0/wCsI98ch9173Pa2PjkIYAMniPRaBYrxeblTNptHaYgtFAByq61nA3Hm1jebj65WzWuwGORtVd7hPdqwcw6bDYoz+CNvyj3IJ9UounYs4z5Lz4v7Fd312P8AgTx3vh78/mZprg5oc05B6FcoitHQIiIAiIgCIiAIiIDrqYmz00sD/pkYWH2IwqH6MuX6E7uUNZWfq2Wu6uhqi791gc6KQn2BJ+yvoqj9rHQ0ll1idV0kObbeSO/wOUVSAAc+jwAffi8wtXZc470qpf2RlbVhLcjbH+rLcAggEHIPQooR7MG5dNfbBTaPu1SG3i3xd3TOkdzqoGjljzc0cj4kDPmpuWfdTKmbhI0KLo3QU49oRFou+ms2aI28rblG8CvqP8LQNPjM8HB9mgOcf5V81wdklGPNn1ZNVxcpckV07UGspdU7hNs1uldLQWc/DwsjOe9qXH53DHU/Swexx9RW03jTt403TW6mvAY6omoo5S5gPDx8I42+4dy+481q/Zc0f+lG4D7zXsdNR2fFRI5/PvJ3E8APmcguPsPNWe3J06dRacfDAxprID3tMT/F4tz6jl+Srfq7Z8dTpY0VrrV8V+V9fXBa/R+0Z6XVyvsfVs4Pw7n9PTJoVBpXR9v0hBqi5z3C4Uz2tJjiHCGuPItIbz5O5Zyse3X9LQvFLo/SdFSSPPCyV0feSu+w5k+5K3vbzSlxt2m6y038wS0tZk/DNJcWZGHc/Xl06FRnaZqrbzcUxVWXQRv7uVxH7SBx5PHrjB9wQvMwo+GqqnGCrzwbxxT+fPiV/wBUbS1nxO5HUN1N4yvePt3GG3D1BrKGwVd6vc1bNT01Uylnpmv7sQve3ibxxjAAII5keIHVcdmHUtrvmtKu1Xy10ZrZIu/tr3ZeGln1sweRdj5gcZ+V3kpV3Ps1urJo6isDZLHqKBlpuEg+mJ7zmkqM+BEpawHzew+CqHG68aE12HHMV1sldz5Y4nMP/a5v9HL2+ztj6SyqTa3p9jbz/wA5+TPNX0/CXxsl1l48ffDl4n6CosZpW9UeotOUF8oHh1PWwNlZz6ZHMH1B5LJqq008M9KmmsoIiKCQiIgCIiAIiIAiIgCx2prHbNR2Oqs14pWVNFUs4ZGO/oQfAjqCsiilNp5RDSawyk+6+0updvK43OkNTW2eKXvKe404cJKYg5aZOHmwjl8/IZHUFbboDtIXy2U0VHqq3tvMTRgVcDhHOR+IfS4+ox7K1Tmtc0tcA5pGCCORCjbWGyG3+o3vn/so2upfkmWgd3QJ8y0fKfyWrHX13R3NTHPijJls+ymTnppY8GYan7R23ckPFKLxC/HNho88/LIKgHevcWr3J1LTy09LLDQUoMNBSnm9znkZc78TiGjHgAFJ9z7Lx7zNr1g5rM9KqjDjj/hcFt+2OwWn9KXOC8XWtlvVwp3B8PGwMhjeP3g0dT7nkutduh0/8lbbZysq12p/jsSS9+LNu2T0bHofb+itLmt+NlzU1zwPqmeBn8gGtHo0LdURY05ucnKXNm1CChFRjyQWJvGm7Ld7hTV1yoIqmamGI+PmOueY6H2KyyLnKEZrElkShGaxJZPBfrTR3mxVlmrIw6lqoHQvaOWARgEeRHUHwICqh2iLFUzU1Dq2Zn+PhlNnvXCP9ojGY5SPASM5/cDxCt8o63L0i68V88ApJqi16hpRb7n3LQ51NM08VNVgE9GHLXY5/QejSr2iv6GxPs9+/ngq62jpq2l79+mSMexzrMh1doWtl5fNW27iPh/mxj74ePd/krJqt+juz3qnTmtLdeqbVlA2OhqGyh7aZ3G8Dq0t4scxkdfFWQX1r3VK3fqec+p87PVsaty1Yx6BERUS8EREAREQBERAEREAREQEU7F1lZVaw3KZVVlTUMg1FJHC2WZzxE3LvlaCflHoOS7O1HV11FtLUz26tqaOo+Mp2tlp5XRvGZADhzSCuzZay3e1ar3DqLlbqikhr7/JPSPlbgTRkuw5vmF29pKzXW/bXz2+zUE9fVmsp3iGFuXFrXgk/YK8nH4qL7OHoii1L4WS7cP8mmS7gXS4bO6y03f5ZbdrKyWmQzd28sfNHwjhqI3Nxy5jJB5EjzUsbWyyz7c6fmnlkmlfQRF75HFznHhHMk8yVoe/m2dRq3SkV2sMTo9SUNJ3QYx3AauEtw+Bx88E4zyzyPI5G/7aUlVQbf2KjrYJKephoY2SxPGHMcG8wVF0q5VJw5t8V3cPQmhWRtcZ8Ulwff8A9Ip1fZqnVvaNq9Ozaiv1toY7JHUtZb6+SEcYdjOAcc8/0C9EMeodqdxNPWyTUlwvumNQTOpS24ymWalnxkFrjzIPl6Fcaz/S7Tu/dTq2z6JuWoaOWzx0gNO8MaHcWTzOemB+a9NqtOu9wtwrPqPVtgbpqxWF7pqOikmbJNUTEY4nY6AeuPQHOV3z1VvNbu74c8ffOTjjrPCe9vePLP2xgmWb9k/+UqKOyhW1tw2hp6m4VtTWTmsnBlqJnSPIBGBxOJKleUExPA6lpUZdmKx3fT21VPbb3bp7fWNq5nmGZuHAEjBVODXQS78r8lqal08O7D/BuevdR0mktG3TUdaR3VDTmQNzjjeeTGD1c4taPdQdtLctWaQ11YJtY3OsqqPXFI57RPI9zKWq4uNjGgkhoIdjAwPnb5Lcd+bBqTXN4sGi7ZTVVNZpZnVVyufdh0UXA0ljeZHEc9Bz5kZ6LX9wdotdV2m3VB1/W32rtZ+Mt9FJRxx8UzGnhDXAjBI5DwzjKtadVRr3ZyXW5/jz4lfUO2Vm9CL6vL8+XAnxFiNGV9wuelrdW3a3z2+4SQN+Jp5m4dHIBhw/NZdZzWHg0E8rIREUEhERAEREAREQBERAEREAREQBERAEREAREQBERAEREAREQBERAEREAREQBERAEREAREQBERAEREAREQBERAEREAREQBERAEREB//Z" style="width:54px;height:54px;border-radius:50%;object-fit:contain;background:#fff;padding:3px;box-shadow:0 2px 12px rgba(0,0,0,.35);flex-shrink:0;">
+        <div>
+          <div style="font-size:26px;font-weight:800;letter-spacing:1.5px;color:#fff;line-height:1.1;font-family:Arial,sans-serif;">GARV &amp; Associates</div>
+          <div style="font-size:12px;color:#cbd5e1;letter-spacing:1px;font-weight:500;margin-top:5px;">Chartered Accountants</div>
+        </div>
+      </div>
+      <div style="text-align:right;">
+        <div style="font-size:10px;color:#d4a017;letter-spacing:2px;text-transform:uppercase;margin-bottom:3px;">Report Date</div>
+        <div style="font-size:13px;color:#e2e8f0;font-weight:600;">${rdate.value || today}</div>
+      </div>
+    </div>
+    <div style="height:2px;background:linear-gradient(90deg,#b8860b,#f0c040,#b8860b);margin-top:20px;border-radius:2px;"></div>
+    <div style="text-align:center;margin-top:20px;margin-bottom:4px;">
+      <div style="font-size:19px;font-weight:800;letter-spacing:3.5px;text-transform:uppercase;color:#fff;font-family:Arial,sans-serif;line-height:1.2;">INTERNAL AUDIT OBSERVATION REPORT</div>
+    </div>
+  </div>
+
+  <!-- ══ ENGAGEMENT INFO TABLE ══ -->
+  <div style="padding:24px 50px 0;">
+    <table style="width:100%;border-collapse:collapse;font-size:12.5px;border:1.5px solid #1e3a8a;border-radius:6px;overflow:hidden;">
+      <tr>
+        <td style="padding:8px 12px;background:#1e3a8a;color:#d4a017;font-weight:700;font-size:10px;letter-spacing:1px;text-transform:uppercase;width:22%">COMPANY</td>
+        <td style="padding:8px 14px;border-bottom:1px solid #e5e7eb;border-right:1.5px solid #1e3a8a;font-weight:600;color:#0f2060">${cname.value || '—'}</td>
+        <td style="padding:8px 12px;background:#1e3a8a;color:#d4a017;font-weight:700;font-size:10px;letter-spacing:1px;text-transform:uppercase;width:22%">FINANCIAL YEAR</td>
+        <td style="padding:8px 14px;border-bottom:1px solid #e5e7eb;font-weight:600;color:#0f2060">${fy.value || '—'}</td>
+      </tr>
+      <tr>
+        <td style="padding:8px 12px;background:#f0f4f9;color:#1e3a8a;font-weight:700;font-size:10px;letter-spacing:1px;text-transform:uppercase;border-right:1.5px solid #1e3a8a;border-bottom:1px solid #e5e7eb;">AUDIT PERIOD</td>
+        <td style="padding:8px 14px;border-bottom:1px solid #e5e7eb;border-right:1.5px solid #1e3a8a;">${aperiod.value || '—'}</td>
+        <td style="padding:8px 12px;background:#f0f4f9;color:#1e3a8a;font-weight:700;font-size:10px;letter-spacing:1px;text-transform:uppercase;border-right:1.5px solid #1e3a8a;border-bottom:1px solid #e5e7eb;">REPORT DATE</td>
+        <td style="padding:8px 14px;border-bottom:1px solid #e5e7eb;">${rdate.value || today}</td>
+      </tr>
+      <tr>
+        <td style="padding:8px 12px;background:#1e3a8a;color:#d4a017;font-weight:700;font-size:10px;letter-spacing:1px;text-transform:uppercase;">AUDITOR</td>
+        <td style="padding:8px 14px;border-right:1.5px solid #1e3a8a;font-weight:600;color:#0f2060">${auditor.value || '—'}</td>
+        <td style="padding:8px 12px;background:#1e3a8a;color:#d4a017;font-weight:700;font-size:10px;letter-spacing:1px;text-transform:uppercase;">ENGAGEMENT PARTNER</td>
+        <td style="padding:8px 14px;font-weight:600;color:#0f2060">${partner.value || '—'}</td>
+      </tr>
+    </table>
+  </div>
+
+  <!-- ══ RISK DASHBOARD ══ -->
+  <div style="padding:20px 50px 0;">
+    <div style="background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:8px;padding:16px 20px;">
+      <div style="font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#1e3a8a;margin-bottom:12px;border-bottom:2px solid #1e3a8a;padding-bottom:6px;">EXECUTIVE SUMMARY</div>
+      <div style="display:flex;gap:0;border:1px solid #e2e8f0;border-radius:6px;overflow:hidden;margin-bottom:12px;">
+        <div style="flex:1;text-align:center;padding:12px 8px;background:#fff;border-right:1px solid #e2e8f0;">
+          <div style="font-size:28px;font-weight:800;color:#0f2060;">${obs.length}</div>
+          <div style="font-size:10px;color:#6b7280;letter-spacing:1px;text-transform:uppercase;margin-top:2px;">Total Obs.</div>
+        </div>
+        <div style="flex:1;text-align:center;padding:12px 8px;background:#fef2f2;border-right:1px solid #e2e8f0;">
+          <div style="font-size:28px;font-weight:800;color:#dc2626;">${highCount}</div>
+          <div style="font-size:10px;color:#dc2626;letter-spacing:1px;text-transform:uppercase;margin-top:2px;">High Risk</div>
+        </div>
+        <div style="flex:1;text-align:center;padding:12px 8px;background:#fffbeb;border-right:1px solid #e2e8f0;">
+          <div style="font-size:28px;font-weight:800;color:#d97706;">${medCount}</div>
+          <div style="font-size:10px;color:#d97706;letter-spacing:1px;text-transform:uppercase;margin-top:2px;">Medium Risk</div>
+        </div>
+        <div style="flex:1;text-align:center;padding:12px 8px;background:#f0fdf4;border-right:1px solid #e2e8f0;">
+          <div style="font-size:28px;font-weight:800;color:#16a34a;">${lowCount}</div>
+          <div style="font-size:10px;color:#16a34a;letter-spacing:1px;text-transform:uppercase;margin-top:2px;">Low Risk</div>
+        </div>
+        <div style="flex:1;text-align:center;padding:12px 8px;background:#f0f4f9;">
+          <div style="font-size:28px;font-weight:800;color:#0284c7;">${clDone}</div>
+          <div style="font-size:10px;color:#0284c7;letter-spacing:1px;text-transform:uppercase;margin-top:2px;">CL Done</div>
+        </div>
+      </div>
+      <div style="font-size:12px;color:#374151;">
+        Checklist: <strong>${clDone}</strong> Done &nbsp;·&nbsp; <strong>${clPending}</strong> Pending &nbsp;·&nbsp; <strong>${clNA}</strong> N/A &nbsp; out of <strong>${clTotal}</strong> items
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ SECTION: OBSERVATIONS ══ -->
+  <div style="padding:22px 50px 0;">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;">
+      <div style="width:4px;height:22px;background:linear-gradient(#1e3a8a,#b8860b);border-radius:2px;"></div>
+      <div style="font-size:13px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:#0f2060;font-family:Arial,sans-serif;">OBSERVATIONS &amp; FINDINGS</div>
+    </div>`;
+
+  if (!obs.length) {
+    r += `<p style="color:#6b7280;font-style:italic;padding:12px 0;">No observations recorded.</p>`;
+  } else {
+    obs.forEach((o, i) => {
+      const riskColor = o.rate==='High'?'#dc2626':o.rate==='Medium'?'#d97706':'#16a34a';
+      const riskBg    = o.rate==='High'?'#fee2e2':o.rate==='Medium'?'#fef3c7':'#dcfce7';
+      const barColor  = o.rate==='High'?'#dc2626':o.rate==='Medium'?'#d97706':'#16a34a';
+      r += `<div style="border:1px solid #e2e8f0;border-left:4px solid ${barColor};border-radius:6px;margin-bottom:16px;overflow:hidden;page-break-inside:avoid;">
+        <div style="background:#f8fafc;padding:10px 14px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #e2e8f0;">
+          <div style="font-weight:700;font-size:13px;color:#0f2060;font-family:Arial,sans-serif;">OBS-${String(o.seq).padStart(3,'0')} &nbsp;·&nbsp; ${o.area}</div>
+          <span style="display:inline-block;padding:3px 12px;border-radius:20px;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:1px;background:${riskBg};color:${riskColor};border:1px solid ${riskColor};">${o.rate} RISK</span>
+        </div>
+        <table style="width:100%;border-collapse:collapse;font-size:12px;">
+          <tr><td style="padding:7px 14px;border-bottom:1px solid #f0f0f0;font-weight:700;color:#374151;background:#fafafa;width:24%;font-size:11px;letter-spacing:.5px;text-transform:uppercase;">Observation</td><td style="padding:7px 14px;border-bottom:1px solid #f0f0f0;">${o.text || '—'}</td></tr>
+          <tr><td style="padding:7px 14px;border-bottom:1px solid #f0f0f0;font-weight:700;color:#374151;background:#fafafa;font-size:11px;letter-spacing:.5px;text-transform:uppercase;">Risk / Implication</td><td style="padding:7px 14px;border-bottom:1px solid #f0f0f0;">${o.risk || '—'}</td></tr>
+          <tr><td style="padding:7px 14px;border-bottom:1px solid #f0f0f0;font-weight:700;color:#374151;background:#fafafa;font-size:11px;letter-spacing:.5px;text-transform:uppercase;">Recommendation</td><td style="padding:7px 14px;border-bottom:1px solid #f0f0f0;">${o.rec || '—'}</td></tr>
+          <tr><td style="padding:7px 14px;border-bottom:1px solid #f0f0f0;font-weight:700;color:#6b3e00;background:#fff8e1;font-size:11px;letter-spacing:.5px;text-transform:uppercase;">Management Response</td><td style="padding:7px 14px;border-bottom:1px solid #f0f0f0;background:#fffdf5;">${o.mgmtRec || '—'}</td></tr>
+          ${o.working?`<tr><td style="padding:7px 14px;font-weight:700;color:#374151;background:#fafafa;font-size:11px;letter-spacing:.5px;text-transform:uppercase;">Working Notes</td><td style="padding:7px 14px;font-size:11.5px;color:#555;">${o.working}</td></tr>`:''}
+        </table>
+      </div>`;
+    });
+  }
+  r += `</div>`;
+
+  // ATR Section
+  r += `
+  <div style="padding:22px 50px 0;">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;">
+      <div style="width:4px;height:22px;background:linear-gradient(#1e3a8a,#b8860b);border-radius:2px;"></div>
+      <div style="font-size:13px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:#0f2060;font-family:Arial,sans-serif;">ACTION TAKEN REPORT (ATR)</div>
+    </div>`;
+  if (!atr.length) {
+    r += `<p style="color:#6b7280;font-style:italic;">No ATR entries.</p>`;
+  } else {
+    r += `<table style="width:100%;border-collapse:collapse;font-size:12px;border:1px solid #e2e8f0;border-radius:6px;overflow:hidden;">
+      <thead><tr>
+        <th style="background:#0f2060;color:#d4a017;padding:9px 10px;font-size:10px;letter-spacing:1px;text-transform:uppercase;text-align:left;">Obs #</th>
+        <th style="background:#0f2060;color:#d4a017;padding:9px 10px;font-size:10px;letter-spacing:1px;text-transform:uppercase;text-align:left;">Action Taken</th>
+        <th style="background:#0f2060;color:#d4a017;padding:9px 10px;font-size:10px;letter-spacing:1px;text-transform:uppercase;text-align:left;">Responsible</th>
+        <th style="background:#0f2060;color:#d4a017;padding:9px 10px;font-size:10px;letter-spacing:1px;text-transform:uppercase;text-align:left;">Target Date</th>
+        <th style="background:#0f2060;color:#d4a017;padding:9px 10px;font-size:10px;letter-spacing:1px;text-transform:uppercase;text-align:left;">Status</th>
+      </tr></thead><tbody>`;
+    atr.forEach((a,i) => {
+      const sc = a.status==='Closed'?'#16a34a':a.status==='In Progress'?'#d97706':'#dc2626';
+      r += `<tr style="background:${i%2?'#f8fafc':'#fff'}">
+        <td style="border-bottom:1px solid #e5e7eb;padding:8px 10px;font-weight:700;color:#0f2060;">OBS-${String(a.obs).padStart(3,'0')}</td>
+        <td style="border-bottom:1px solid #e5e7eb;padding:8px 10px;">${a.response}</td>
+        <td style="border-bottom:1px solid #e5e7eb;padding:8px 10px;">${a.responsible||'—'}</td>
+        <td style="border-bottom:1px solid #e5e7eb;padding:8px 10px;">${a.targetDate||'—'}</td>
+        <td style="border-bottom:1px solid #e5e7eb;padding:8px 10px;"><span style="display:inline-block;padding:2px 10px;border-radius:20px;font-size:10px;font-weight:700;background:${sc}22;color:${sc};border:1px solid ${sc};">${a.status}</span></td>
+      </tr>`;
+    });
+    r += `</tbody></table>`;
+  }
+  r += `</div>`;
+
+  // Stock
+  if (stocks.length) {
+    r += `
+    <div style="padding:22px 50px 0;">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;">
+        <div style="width:4px;height:22px;background:linear-gradient(#1e3a8a,#b8860b);border-radius:2px;"></div>
+        <div style="font-size:13px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:#0f2060;font-family:Arial,sans-serif;">STOCK VERIFICATION</div>
+      </div>
+      <table style="width:100%;border-collapse:collapse;font-size:12px;border:1px solid #e2e8f0;border-radius:6px;overflow:hidden;">
+        <thead><tr>
+          <th style="background:#0f2060;color:#d4a017;padding:9px 10px;font-size:10px;letter-spacing:1px;text-transform:uppercase;text-align:left;">Item</th>
+          <th style="background:#0f2060;color:#d4a017;padding:9px 10px;font-size:10px;letter-spacing:1px;text-transform:uppercase;text-align:left;">Book Qty</th>
+          <th style="background:#0f2060;color:#d4a017;padding:9px 10px;font-size:10px;letter-spacing:1px;text-transform:uppercase;text-align:left;">Physical Qty</th>
+          <th style="background:#0f2060;color:#d4a017;padding:9px 10px;font-size:10px;letter-spacing:1px;text-transform:uppercase;text-align:left;">Variance</th>
+          <th style="background:#0f2060;color:#d4a017;padding:9px 10px;font-size:10px;letter-spacing:1px;text-transform:uppercase;text-align:left;">Remarks</th>
+        </tr></thead><tbody>`;
+    stocks.forEach((s,i) => {
+      const vc = s.variance<0?'#dc2626':s.variance>0?'#16a34a':'inherit';
+      r += `<tr style="background:${i%2?'#f8fafc':'#fff'}">
+        <td style="border-bottom:1px solid #e5e7eb;padding:8px 10px;font-weight:600;">${s.item}</td>
+        <td style="border-bottom:1px solid #e5e7eb;padding:8px 10px;">${s.book}</td>
+        <td style="border-bottom:1px solid #e5e7eb;padding:8px 10px;">${s.phy}</td>
+        <td style="border-bottom:1px solid #e5e7eb;padding:8px 10px;font-weight:700;color:${vc};">${s.variance>0?'+':''}${s.variance}</td>
+        <td style="border-bottom:1px solid #e5e7eb;padding:8px 10px;">${s.remarks||'—'}</td>
+      </tr>`;
+    });
+    r += `</tbody></table></div>`;
+  }
+
+  // ── SIGNATURE FOOTER ──
+  r += `
+  <div style="margin:40px 50px 0;padding-top:20px;border-top:2px solid #1e3a8a;">
+    <div style="display:flex;justify-content:space-between;align-items:flex-end;">
+      <div>
+        <div style="font-size:11px;font-weight:700;color:#0f2060;letter-spacing:.5px;">For ${cname.value || 'the Company'}</div>
+        <div style="margin-top:44px;padding-top:6px;border-top:1.5px solid #000;width:200px;font-size:11px;color:#374151;">Authorised Signatory</div>
+      </div>
+      <div style="text-align:right;">
+        <div style="font-size:11px;font-weight:700;color:#0f2060;letter-spacing:.5px;">For GARV &amp; Associates</div>
+        <div style="font-size:10px;color:#6b7280;letter-spacing:.8px;margin-top:2px;">Chartered Accountants</div>
+        <div style="margin-top:44px;padding-top:6px;border-top:1.5px solid #000;width:210px;margin-left:auto;font-size:11px;color:#374151;">${auditor.value || 'Auditor'}</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FOOTER STRIP -->
+  <div style="margin-top:32px;background:linear-gradient(135deg,#0f2060,#1e3a8a);padding:14px 50px;display:flex;justify-content:space-between;align-items:center;">
+    <div style="font-size:10px;color:#cbd5e1;letter-spacing:1px;">GARV &amp; Associates | Chartered Accountants</div>
+    <div style="font-size:10px;color:#94a3b8;letter-spacing:.5px;">Internal Audit Observation Report</div>
+    <div style="font-size:10px;color:#d4a017;">${rdate.value || today}</div>
+  </div>`;
+
+  document.getElementById('reportOut').innerHTML = r;
+}
+
+// ─── SAVE / RESTORE ───────────────────────────────────────
+function saveBackup() {
+  persist();
+  const blob = new Blob([localStorage.getItem("audit_v50")], { type: "application/json" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = (cname.value || "Audit") + "_GarvAssociates_backup.json";
+  a.click();
+}
+
+document.getElementById('restore').addEventListener("change", e => {
+  const f = e.target.files[0];
+  if (!f) return;
+  const r = new FileReader();
+  r.onload = () => { localStorage.setItem("audit_v50", r.result); loadData(); };
+  r.readAsText(f);
+});
+
+// ─── COMPANY AUTO-SAVE ────────────────────────────────────
+['cname','fy','aperiod','auditor','partner','rdate'].forEach(id => {
+  document.getElementById(id).addEventListener('input', persist);
+});
+
+// ─── INIT ─────────────────────────────────────────────────
+loadData();
+
+// ─── FILE HANDLING UTILITIES ──────────────────────────────
+function fmtSize(bytes) {
+  if (bytes < 1024) return bytes + ' B';
+  if (bytes < 1024*1024) return (bytes/1024).toFixed(1) + ' KB';
+  return (bytes/(1024*1024)).toFixed(1) + ' MB';
+}
+
+function fileToDataURL(file) {
+  return new Promise((resolve, reject) => {
+    const r = new FileReader();
+    r.onload = () => resolve(r.result);
+    r.onerror = reject;
+    r.readAsDataURL(file);
+  });
+}
+
+function iconFor(type, name) {
+  const ext = (name.split('.').pop() || '').toLowerCase();
+  if (['xlsx','xls','csv'].includes(ext)) return '📊';
+  if (ext === 'pdf') return '📕';
+  if (['png','jpg','jpeg','gif','webp'].includes(ext)) return '🖼';
+  if (['doc','docx'].includes(ext)) return '📄';
+  return '📁';
+}
+
+async function handleFiles(fileList, targetArray, renderFn) {
+  for (const f of fileList) {
+    try {
+      const dataUrl = await fileToDataURL(f);
+      targetArray.push({ name: f.name, type: f.type, size: f.size, data: dataUrl, uploaded: new Date().toISOString() });
+    } catch (e) { console.error('File read error', e); }
+  }
+  renderFn();
+}
+
+function renderAttachChips(arr, containerId, onRemove) {
+  const c = document.getElementById(containerId);
+  c.innerHTML = '';
+  arr.forEach((f, idx) => {
+    const chip = document.createElement('div');
+    chip.className = 'attach-chip';
+    chip.innerHTML = `<span>${iconFor(f.type, f.name)}</span>
+      <span class="ac-name" title="${f.name}" onclick="downloadFile(${JSON.stringify(idx)})">${f.name}</span>
+      <span class="ac-size">${fmtSize(f.size)}</span>
+      <button class="ac-remove" title="Remove">✕</button>`;
+    chip.querySelector('.ac-remove').onclick = () => { arr.splice(idx,1); renderAttachChips(arr, containerId, onRemove); if(onRemove) onRemove(); };
+    chip.querySelector('.ac-name').onclick = () => openFile(f);
+    c.appendChild(chip);
+  });
+}
+
+function openFile(f) {
+  // For excel files, show preview; otherwise open in new tab
+  const ext = (f.name.split('.').pop() || '').toLowerCase();
+  if (['xlsx','xls','csv'].includes(ext)) {
+    previewExcelFromDataURL(f.data, f.name);
+    show('attachments');
+    document.getElementById('xlsxPreviewCard').style.display = 'block';
+    document.getElementById('xlsxPreviewCard').scrollIntoView({behavior:'smooth'});
+  } else {
+    const w = window.open();
+    w.document.write(`<iframe src="${f.data}" style="width:100%;height:100vh;border:none;"></iframe>`);
+  }
+}
+
+// ─── OBSERVATION FILE DROPZONE ─────────────────────────────
+const obsDz = document.getElementById('obsDropzone');
+const obsFileInput = document.getElementById('obsFileInput');
+obsFileInput.addEventListener('change', e => handleFiles(e.target.files, currentObsFiles, () => renderAttachChips(currentObsFiles, 'obsAttachList')));
+['dragover','dragleave','drop'].forEach(evt => {
+  obsDz.addEventListener(evt, e => {
+    e.preventDefault();
+    obsDz.classList.toggle('dragover', evt === 'dragover');
+    if (evt === 'drop') handleFiles(e.dataTransfer.files, currentObsFiles, () => renderAttachChips(currentObsFiles, 'obsAttachList'));
+  });
+});
+
+// ─── STOCK FILE DROPZONE ────────────────────────────────────
+const stockDz = document.getElementById('stockDropzone');
+const stockFileInput = document.getElementById('stockFileInput');
+stockFileInput.addEventListener('change', e => handleFiles(e.target.files, currentStockFiles, () => renderAttachChips(currentStockFiles, 'stockAttachList')));
+['dragover','dragleave','drop'].forEach(evt => {
+  stockDz.addEventListener(evt, e => {
+    e.preventDefault();
+    stockDz.classList.toggle('dragover', evt === 'dragover');
+    if (evt === 'drop') handleFiles(e.dataTransfer.files, currentStockFiles, () => renderAttachChips(currentStockFiles, 'stockAttachList'));
+  });
+});
+
+// ─── GLOBAL WORKING PAPERS DROPZONE ────────────────────────
+const globalDz = document.getElementById('globalDropzone');
+const globalFileInput = document.getElementById('globalFileInput');
+globalFileInput.addEventListener('change', e => handleFiles(e.target.files, globalFiles, () => { renderGlobalAttachments(); persist(); }));
+['dragover','dragleave','drop'].forEach(evt => {
+  globalDz.addEventListener(evt, e => {
+    e.preventDefault();
+    globalDz.classList.toggle('dragover', evt === 'dragover');
+    if (evt === 'drop') handleFiles(e.dataTransfer.files, globalFiles, () => { renderGlobalAttachments(); persist(); });
+  });
+});
+
+function renderGlobalAttachments() {
+  const grid = document.getElementById('globalAttachGrid');
+  const empty = document.getElementById('globalAttachEmpty');
+  grid.innerHTML = '';
+  if (!globalFiles.length) { empty.style.display = 'block'; return; }
+  empty.style.display = 'none';
+  globalFiles.forEach((f, idx) => {
+    const card = document.createElement('div');
+    card.className = 'attach-card';
+    card.innerHTML = `
+      <div class="ac-title">${iconFor(f.type, f.name)} ${f.name}</div>
+      <div class="ac-meta">${fmtSize(f.size)} &middot; ${new Date(f.uploaded).toLocaleDateString('en-IN')}</div>
+      <div class="ac-actions">
+        <button class="btn btn-info btn-sm" onclick='openFile(${JSON.stringify(f)})'>👁 View</button>
+        <button class="btn btn-danger btn-sm" onclick="delGlobalFile(${idx})">🗑 Delete</button>
+      </div>`;
+    grid.appendChild(card);
+  });
+}
+
+function delGlobalFile(idx) {
+  if (!confirm('Delete this file?')) return;
+  globalFiles.splice(idx, 1);
+  renderGlobalAttachments(); persist();
+}
+
+function downloadFile(idx) {} // placeholder, click handled by openFile
+
+function viewFiles(kind, key) {
+  let arr;
+  if (kind === 'obs') {
+    const o = obs.find(x => x.id === key);
+    arr = o ? o.files || [] : [];
+  } else {
+    arr = stocks[key] ? stocks[key].files || [] : [];
+  }
+  if (!arr.length) { alert('No files attached.'); return; }
+  if (arr.length === 1) { openFile(arr[0]); return; }
+  // Multiple files: list them via prompt-style menu
+  const names = arr.map((f,i) => `${i+1}. ${f.name}`).join('\n');
+  const choice = prompt(`Multiple files attached. Enter number to view:\n${names}`, '1');
+  const i = parseInt(choice) - 1;
+  if (arr[i]) openFile(arr[i]);
+}
+
+// ─── EXCEL PREVIEW (SheetJS) ───────────────────────────────
+function previewExcelFromDataURL(dataUrl, name) {
+  try {
+    const base64 = dataUrl.split(',')[1];
+    const wb = XLSX.read(base64, { type: 'base64' });
+    document.getElementById('xlsxPreviewTitle').textContent = 'Excel Preview — ' + name;
+    const tabs = document.getElementById('xlsxSheetTabs');
+    tabs.innerHTML = '';
+    wb.SheetNames.forEach((sn, i) => {
+      const b = document.createElement('button');
+      b.className = 'btn btn-sm ' + (i === 0 ? 'btn-primary' : 'btn-info');
+      b.textContent = sn;
+      b.style.marginRight = '6px';
+      b.onclick = () => renderSheetTable(wb.Sheets[sn]);
+      tabs.appendChild(b);
+    });
+    renderSheetTable(wb.Sheets[wb.SheetNames[0]]);
+    document.getElementById('xlsxPreviewCard').style.display = 'block';
+  } catch (e) {
+    alert('Could not preview this Excel file: ' + e.message);
+  }
+}
+
+function renderSheetTable(sheet) {
+  const html = XLSX.utils.sheet_to_html(sheet, { editable: false });
+  // Extract just the table from generated html
+  const tmp = document.createElement('div');
+  tmp.innerHTML = html;
+  const table = tmp.querySelector('table');
+  if (table) {
+    table.querySelectorAll('tr:first-child td, tr:first-child th').forEach(c => {});
+    document.getElementById('xlsxPreviewTable').innerHTML = table.innerHTML;
+  }
+}
+
+// ─── PRINT PREVIEW ──────────────────────────────────────────
+function openPrintPreview() {
+  generateReport();
+  const reportHtml = document.getElementById('reportOut').innerHTML;
+  document.getElementById('previewPage').innerHTML = reportHtml;
+  document.getElementById('printPreviewModal').classList.add('open');
+}
+
+function closePrintPreview() {
+  document.getElementById('printPreviewModal').classList.remove('open');
+}
+
+function doActualPrint() {
+  const previewContent = document.getElementById('previewPage').innerHTML;
+  // Write to a hidden print frame for clean print output
+  let pf = document.getElementById('printFrame');
+  if (!pf) {
+    pf = document.createElement('iframe');
+    pf.id = 'printFrame';
+    pf.style.cssText = 'position:fixed;top:-9999px;left:-9999px;width:210mm;height:297mm;border:none;';
+    document.body.appendChild(pf);
+  }
+  const doc = pf.contentDocument || pf.contentWindow.document;
+  doc.open();
+  doc.write(`<!DOCTYPE html><html><head><meta charset="utf-8">
+  <style>
+    @page { margin: 18mm 15mm 18mm 15mm; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: Arial, sans-serif; font-size: 12px; color: #1a1a2e; background: #fff; }
+    img { max-width: 100%; }
+    table { border-collapse: collapse; width: 100%; }
+    td, th { border: 1px solid #e5e7eb; padding: 7px 10px; vertical-align: top; font-size: 11.5px; }
+    .obs-print-block { page-break-inside: avoid; }
+  </style>
+  </head><body>${previewContent}</body></html>`);
+  doc.close();
+  closePrintPreview();
+  setTimeout(() => { pf.contentWindow.focus(); pf.contentWindow.print(); }, 350);
+}
+
+// ─── CLIENT REPORT (Observations & Findings only) ──────────
+function generateClientReport() {
+  const today = new Date().toLocaleDateString('en-IN', { day: '2-digit', month: 'long', year: 'numeric' });
+
+  let r = `
+  <!-- LETTERHEAD -->
+  <div style="background:linear-gradient(135deg,#0f2060 0%,#1e3a8a 60%,#162d73 100%);padding:28px 50px 22px;color:#fff;">
+    <div style="display:flex;align-items:center;justify-content:space-between;">
+      <div style="display:flex;align-items:center;gap:16px;">
+        <img src="${document.querySelector('header img') ? document.querySelector('header img').src : ''}" style="width:54px;height:54px;border-radius:50%;object-fit:contain;background:#fff;padding:3px;box-shadow:0 2px 12px rgba(0,0,0,.35);flex-shrink:0;">
+        <div>
+          <div style="font-size:26px;font-weight:800;letter-spacing:1.5px;color:#fff;line-height:1.1;font-family:Arial,sans-serif;">GARV &amp; Associates</div>
+          <div style="font-size:12px;color:#cbd5e1;letter-spacing:1px;font-weight:500;margin-top:5px;">Chartered Accountants</div>
+        </div>
+      </div>
+      <div style="text-align:right;">
+        <div style="font-size:10px;color:#d4a017;letter-spacing:2px;text-transform:uppercase;margin-bottom:3px;">Report Date</div>
+        <div style="font-size:13px;color:#e2e8f0;font-weight:600;">${rdate.value || today}</div>
+      </div>
+    </div>
+    <div style="height:2px;background:linear-gradient(90deg,#b8860b,#f0c040,#b8860b);margin-top:20px;border-radius:2px;"></div>
+    <div style="text-align:center;margin-top:20px;margin-bottom:4px;">
+      <div style="font-size:19px;font-weight:800;letter-spacing:3.5px;text-transform:uppercase;color:#fff;font-family:Arial,sans-serif;line-height:1.2;">INTERNAL AUDIT — OBSERVATIONS &amp; FINDINGS</div>
+    </div>
+  </div>
+
+  <!-- ENGAGEMENT INFO TABLE (no auditor row) -->
+  <div style="padding:24px 50px 0;">
+    <table style="width:100%;border-collapse:collapse;font-size:12.5px;border:1.5px solid #1e3a8a;border-radius:6px;overflow:hidden;">
+      <tr>
+        <td style="padding:8px 12px;background:#1e3a8a;color:#d4a017;font-weight:700;font-size:10px;letter-spacing:1px;text-transform:uppercase;width:22%">COMPANY</td>
+        <td style="padding:8px 14px;border-bottom:1px solid #e5e7eb;border-right:1.5px solid #1e3a8a;font-weight:600;color:#0f2060">${cname.value || '—'}</td>
+        <td style="padding:8px 12px;background:#1e3a8a;color:#d4a017;font-weight:700;font-size:10px;letter-spacing:1px;text-transform:uppercase;width:22%">FINANCIAL YEAR</td>
+        <td style="padding:8px 14px;border-bottom:1px solid #e5e7eb;font-weight:600;color:#0f2060">${fy.value || '—'}</td>
+      </tr>
+      <tr>
+        <td style="padding:8px 12px;background:#f0f4f9;color:#1e3a8a;font-weight:700;font-size:10px;letter-spacing:1px;text-transform:uppercase;border-right:1.5px solid #1e3a8a;">AUDIT PERIOD</td>
+        <td style="padding:8px 14px;border-right:1.5px solid #1e3a8a;">${aperiod.value || '—'}</td>
+        <td style="padding:8px 12px;background:#f0f4f9;color:#1e3a8a;font-weight:700;font-size:10px;letter-spacing:1px;text-transform:uppercase;border-right:1.5px solid #1e3a8a;">REPORT DATE</td>
+        <td style="padding:8px 14px;">${rdate.value || today}</td>
+      </tr>
+    </table>
+  </div>
+
+  <!-- OBSERVATIONS & FINDINGS -->
+  <div style="padding:22px 50px 0;">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;">
+      <div style="width:4px;height:22px;background:linear-gradient(#1e3a8a,#b8860b);border-radius:2px;"></div>
+      <div style="font-size:13px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:#0f2060;font-family:Arial,sans-serif;">OBSERVATIONS &amp; FINDINGS</div>
+    </div>`;
+
+  if (!obs.length) {
+    r += `<p style="color:#6b7280;font-style:italic;padding:12px 0;">No observations recorded.</p>`;
+  } else {
+    obs.forEach((o, i) => {
+      const riskColor = o.rate==='High'?'#dc2626':o.rate==='Medium'?'#d97706':'#16a34a';
+      const riskBg    = o.rate==='High'?'#fee2e2':o.rate==='Medium'?'#fef3c7':'#dcfce7';
+      const barColor  = o.rate==='High'?'#dc2626':o.rate==='Medium'?'#d97706':'#16a34a';
+      r += `<div style="border:1px solid #e2e8f0;border-left:4px solid ${barColor};border-radius:6px;margin-bottom:16px;overflow:hidden;page-break-inside:avoid;" class="obs-print-block">
+        <div style="background:#f8fafc;padding:10px 14px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #e2e8f0;">
+          <div style="font-weight:700;font-size:13px;color:#0f2060;font-family:Arial,sans-serif;">OBS-${String(o.seq).padStart(3,'0')} &nbsp;·&nbsp; ${o.area}</div>
+          <span style="display:inline-block;padding:3px 12px;border-radius:20px;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:1px;background:${riskBg};color:${riskColor};border:1px solid ${riskColor};">${o.rate} RISK</span>
+        </div>
+        <table style="width:100%;border-collapse:collapse;font-size:12px;">
+          <tr><td style="padding:7px 14px;border-bottom:1px solid #f0f0f0;font-weight:700;color:#374151;background:#fafafa;width:24%;font-size:11px;letter-spacing:.5px;text-transform:uppercase;">Observation</td><td style="padding:7px 14px;border-bottom:1px solid #f0f0f0;">${o.text || '—'}</td></tr>
+          <tr><td style="padding:7px 14px;border-bottom:1px solid #f0f0f0;font-weight:700;color:#374151;background:#fafafa;font-size:11px;letter-spacing:.5px;text-transform:uppercase;">Risk / Implication</td><td style="padding:7px 14px;border-bottom:1px solid #f0f0f0;">${o.risk || '—'}</td></tr>
+          <tr><td style="padding:7px 14px;border-bottom:1px solid #f0f0f0;font-weight:700;color:#374151;background:#fafafa;font-size:11px;letter-spacing:.5px;text-transform:uppercase;">Recommendation</td><td style="padding:7px 14px;border-bottom:1px solid #f0f0f0;">${o.rec || '—'}</td></tr>
+          <tr><td style="padding:7px 14px;font-weight:700;color:#6b3e00;background:#fff8e1;font-size:11px;letter-spacing:.5px;text-transform:uppercase;">Management Response</td><td style="padding:7px 14px;background:#fffdf5;">${o.mgmtRec || '—'}</td></tr>
+        </table>
+      </div>`;
+    });
+  }
+  r += `</div>`;
+
+  document.getElementById('clientReportOut').innerHTML = r;
+}
+
+function openClientPrintPreview() {
+  generateClientReport();
+  const reportHtml = document.getElementById('clientReportOut').innerHTML;
+  document.getElementById('clientPreviewPage').innerHTML = reportHtml;
+  document.getElementById('clientPrintPreviewModal').classList.add('open');
+}
+
+function closeClientPrintPreview() {
+  document.getElementById('clientPrintPreviewModal').classList.remove('open');
+}
+
+function doClientPrint() {
+  const previewContent = document.getElementById('clientPreviewPage').innerHTML;
+  let pf = document.getElementById('clientPrintFrame');
+  if (!pf) {
+    pf = document.createElement('iframe');
+    pf.id = 'clientPrintFrame';
+    pf.style.cssText = 'position:fixed;top:-9999px;left:-9999px;width:210mm;height:297mm;border:none;';
+    document.body.appendChild(pf);
+  }
+  const doc = pf.contentDocument || pf.contentWindow.document;
+  doc.open();
+  doc.write(`<!DOCTYPE html><html><head><meta charset="utf-8">
+  <style>
+    @page { margin: 18mm 15mm 18mm 15mm; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: Arial, sans-serif; font-size: 12px; color: #1a1a2e; background: #fff; }
+    img { max-width: 100%; }
+    table { border-collapse: collapse; width: 100%; }
+    td, th { border: 1px solid #e5e7eb; padding: 7px 10px; vertical-align: top; font-size: 11.5px; }
+    .obs-print-block { page-break-inside: avoid; }
+  </style>
+  </head><body>${previewContent}</body></html>`);
+  doc.close();
+  closeClientPrintPreview();
+  setTimeout(() => { pf.contentWindow.focus(); pf.contentWindow.print(); }, 350);
+}
+</script>
+</body>
+</html>
